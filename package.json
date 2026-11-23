@@ -14,8 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ee-practice/DatabricksSampleDataProject.git",
-    "directory": "tools/vscode-databricks-sql"
+    "url": "https://github.com/peter-ee/vscode-databricks-sql.git"
   },
   "contributes": {
     "languages": [
