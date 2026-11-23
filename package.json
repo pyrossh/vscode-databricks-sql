@@ -14,7 +14,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/peter-ee/vscode-databricks-sql.git"
+    "url": "https://github.com/pyrossh/vscode-databricks-sql.git"
   },
   "contributes": {
     "languages": [
