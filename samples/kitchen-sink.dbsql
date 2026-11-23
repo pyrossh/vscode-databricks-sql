@@ -1,0 +1,99 @@
+-- Kitchen sink for the Databricks SQL grammar
+/* block
+   comment */
+CREATE OR REFRESH STREAMING TABLE main.${my_pipeline.schema}.events_raw (
+  id STRING COMMENT 'Key',
+  amount DECIMAL(18,2),
+  price DEC(10, 4),
+  code VARCHAR(10),
+  tags ARRAY<STRING>,
+  attrs MAP<STRING, ARRAY<INT>>,
+  payload STRUCT<a: INT, b: STRUCT<c: DOUBLE, d: ARRAY<STRING>>>,
+  v VARIANT,
+  ts TIMESTAMP_NTZ,
+  full_name STRING GENERATED ALWAYS AS (concat(first, ' ', last)),
+  ssn STRING MASK main.sec.mask_ssn,
+  CONSTRAINT id_present EXPECT (id IS NOT NULL) ON VIOLATION DROP ROW,
+  CONSTRAINT amount_ok EXPECT (amount > 0) ON VIOLATION FAIL UPDATE,
+  CONSTRAINT just_warn EXPECT (ts IS NOT NULL)
+)
+PARTITIONED BY (ts)
+CLUSTER BY AUTO
+COMMENT 'It''s a \'test\' with ${my_pipeline.landing_root} inside'
+LOCATION 's3://bucket/path'
+SCHEDULE EVERY 1 HOUR
+WITH ROW FILTER main.sec.rf ON (id)
+TBLPROPERTIES ('quality' = 'bronze', "k" = "v")
+AS SELECT
+  *,
+  _metadata.file_path AS _source_file,
+  _rescued_data,
+  try_cast(x AS BIGINT) AS n,
+  y::INT AS y_int,
+  j:a.b[0] AS json_val,
+  `weird col` || 'x' AS s,
+  10L + 1.5BD * 2e-3 - .5 / 3 % 2 AS nums,
+  true, FALSE, NULL,
+  my_udf(a) AS custom,
+  date_trunc('MONTH', ts) AS m,
+  max_by(a, b), element_at(arr, 1), array_compact(arr), named_struct('a', 1), sha2(a, 256), xxhash64(a),
+  ai_query('endpoint', prompt) AS ai
+FROM STREAM read_files('${my_pipeline.landing_root}/events/', format => 'csv', header => true);
+
+CREATE OR REFRESH PRIVATE STREAMING TABLE `my-cat`.`my-schema`.priv AS SELECT * FROM STREAM(LIVE.events_raw);
+CREATE OR REPLACE TEMPORARY VIEW tv AS SELECT * FROM LIVE.events_raw;
+CREATE LIVE VIEW lv AS SELECT 1;
+CREATE LIVE TABLE lt AS SELECT 1;
+CREATE OR REFRESH MATERIALIZED VIEW mv AS SELECT 1;
+
+CREATE FLOW f1 AS INSERT INTO target BY NAME SELECT * FROM STREAM(src);
+CREATE FLOW f_once AS INSERT INTO ONCE target SELECT * FROM backfill;
+
+CREATE OR REFRESH STREAMING TABLE dim;
+CREATE FLOW cdc AS AUTO CDC INTO dim
+FROM STREAM(src)
+KEYS (id)
+APPLY AS DELETE WHEN op = 'D'
+APPLY AS TRUNCATE WHEN op = 'T'
+SEQUENCE BY STRUCT(ts, file)
+COLUMNS * EXCEPT (op, ts)
+IGNORE NULL UPDATES
+STORED AS SCD TYPE 2
+TRACK HISTORY ON (name, city);
+
+CREATE FLOW snap AS AUTO CDC FROM SNAPSHOT src_snapshot INTO dim KEYS (id) STORED AS SCD TYPE 1;
+
+WITH a AS (SELECT 1 AS x), b AS (SELECT 2)
+SELECT DISTINCT t.id, count(*) OVER (PARTITION BY t.id ORDER BY t.ts DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS c,
+  first(v) IGNORE NULLS OVER w AS fv,
+  row_number() OVER w, lag(v) OVER w, lead(v, 1) OVER w,
+  CASE WHEN x < 1 THEN 'a' WHEN x <> 2 THEN 'b' ELSE 'c' END,
+  coalesce(nullif(a, ''), 'z')
+FROM t
+LEFT ANTI JOIN u ON t.id = u.id
+LEFT SEMI JOIN w2 USING (id)
+LATERAL VIEW explode(arr) e AS item
+TABLESAMPLE (10 PERCENT)
+WHERE x IN (1, 2) AND y BETWEEN 1 AND 2 AND z LIKE 'a%' AND d >= current_date()
+GROUP BY ALL
+HAVING count(*) > 1
+QUALIFY row_number() OVER (PARTITION BY id ORDER BY ts) = 1
+WINDOW w AS (PARTITION BY id ORDER BY ts)
+UNION ALL SELECT * FROM (VALUES (1, 'a'), (2, 'b')) AS v(n, s)
+INTERSECT SELECT 1 EXCEPT SELECT 2
+ORDER BY 1 LIMIT 10;
+
+SELECT * FROM sales PIVOT (sum(amount) FOR month IN ('JAN', 'FEB'));
+
+MERGE INTO tgt USING src ON tgt.id = src.id
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *;
+
+ALTER TABLE main.s.t SET TAGS ('pii' = 'true');
+ALTER TABLE main.s.t UNSET TAGS ('pii');
+ALTER TABLE main.s.t SET OWNER TO `grp`;
+COMMENT ON TABLE main.s.t IS 'hello';
+GRANT SELECT ON TABLE main.s.t TO `analysts`;
+REVOKE SELECT ON TABLE main.s.t FROM `analysts`;
+USE CATALOG main;
+USE SCHEMA s;

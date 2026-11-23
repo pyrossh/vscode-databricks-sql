@@ -1,0 +1,378 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Databricks SQL",
+  "scopeName": "source.databricks-sql",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#quoted-identifier"
+    },
+    {
+      "include": "#substitution"
+    },
+    {
+      "include": "#constraint"
+    },
+    {
+      "include": "#dataset-name"
+    },
+    {
+      "include": "#lakeflow"
+    },
+    {
+      "include": "#type-complex"
+    },
+    {
+      "include": "#types"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#builtin-functions"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#constants"
+    },
+    {
+      "include": "#metadata-access"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#punctuation"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-dash.databricks-sql",
+          "match": "--.*$",
+          "captures": {}
+        },
+        {
+          "name": "comment.block.databricks-sql",
+          "begin": "/\\*",
+          "end": "\\*/",
+          "beginCaptures": {
+            "0": {
+              "name": "punctuation.definition.comment.databricks-sql"
+            }
+          }
+        }
+      ]
+    },
+    "substitution": {
+      "name": "variable.other.substitution.databricks-sql",
+      "match": "\\$\\{[^}\\n]*\\}"
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.single.databricks-sql",
+          "begin": "'",
+          "end": "'(?!')",
+          "patterns": [
+            {
+              "match": "\\\\.|''",
+              "name": "constant.character.escape.databricks-sql"
+            },
+            {
+              "include": "#substitution"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.databricks-sql",
+          "begin": "\"",
+          "end": "\"(?!\")",
+          "patterns": [
+            {
+              "match": "\\\\.|\"\"",
+              "name": "constant.character.escape.databricks-sql"
+            },
+            {
+              "include": "#substitution"
+            }
+          ]
+        }
+      ]
+    },
+    "quoted-identifier": {
+      "name": "string.quoted.other.backtick.databricks-sql",
+      "begin": "`",
+      "end": "`",
+      "patterns": [
+        {
+          "match": "``",
+          "name": "constant.character.escape.databricks-sql"
+        },
+        {
+          "include": "#substitution"
+        }
+      ]
+    },
+    "constraint": {
+      "patterns": [
+        {
+          "match": "(?i)\\b(CONSTRAINT)\\s+((?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*)(?:\\s*\\.\\s*(?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*))*)\\s+(EXPECT)\\b",
+          "captures": {
+            "1": {
+              "name": "keyword.other.lakeflow.databricks-sql"
+            },
+            "2": {
+              "name": "entity.name.constraint.databricks-sql"
+            },
+            "3": {
+              "name": "keyword.other.lakeflow.databricks-sql"
+            }
+          }
+        },
+        {
+          "match": "(?i)\\bON\\s+VIOLATION\\s+(?:DROP\\s+ROW|FAIL\\s+UPDATE)\\b",
+          "name": "keyword.other.lakeflow.databricks-sql"
+        }
+      ]
+    },
+    "dataset-name": {
+      "patterns": [
+        {
+          "match": "(?i)\\b(CREATE\\s+(?:OR\\s+(?:REFRESH|REPLACE)\\s+)?(?:PRIVATE\\s+)?(?:(?:STREAMING|EXTERNAL|TEMPORARY|TEMP)\\s+)?(?:TABLE|VIEW|FLOW|LIVE\\s+VIEW|LIVE\\s+TABLE|MATERIALIZED\\s+VIEW)(?:\\s+IF\\s+NOT\\s+EXISTS)?)\\s+((?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*)(?:\\s*\\.\\s*(?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*))*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.lakeflow.databricks-sql"
+            },
+            "2": {
+              "name": "entity.name.type.dataset.databricks-sql",
+              "patterns": [
+                {
+                  "include": "#substitution"
+                },
+                {
+                  "include": "#quoted-identifier"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "match": "(?i)\\b(AUTO\\s+CDC\\s+INTO)\\s+((?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*)(?:\\s*\\.\\s*(?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*))*)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.lakeflow.databricks-sql"
+            },
+            "2": {
+              "name": "entity.name.type.dataset.databricks-sql",
+              "patterns": [
+                {
+                  "include": "#substitution"
+                },
+                {
+                  "include": "#quoted-identifier"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "match": "(?i)\\b(INSERT\\s+INTO)\\s+((?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*)(?:\\s*\\.\\s*(?:\\$\\{[^}]*\\}|`[^`]*`|[A-Za-z_][\\w$]*))*)(?=[^;]*\\bONCE\\b)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.lakeflow.databricks-sql"
+            },
+            "2": {
+              "name": "entity.name.type.dataset.databricks-sql",
+              "patterns": [
+                {
+                  "include": "#substitution"
+                },
+                {
+                  "include": "#quoted-identifier"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "lakeflow": {
+      "patterns": [
+        {
+          "match": "(?i)\\b(?:CREATE\\s+OR\\s+REFRESH|CREATE\\s+OR\\s+REPLACE|PRIVATE\\s+STREAMING\\s+TABLE|STREAMING\\s+TABLE|MATERIALIZED\\s+VIEW|TEMPORARY\\s+VIEW|LIVE\\s+VIEW|LIVE\\s+TABLE|CREATE\\s+FLOW|AUTO\\s+CDC\\s+INTO|AUTO\\s+CDC|FROM\\s+SNAPSHOT|KEYS|SEQUENCE\\s+BY|STORED\\s+AS\\s+SCD\\s+TYPE\\s+[12]|SCD\\s+TYPE\\s+[12]|APPLY\\s+AS\\s+DELETE\\s+WHEN|APPLY\\s+AS\\s+TRUNCATE\\s+WHEN|COLUMNS\\s*\\*\\s*EXCEPT|TRACK\\s+HISTORY\\s+ON|IGNORE\\s+NULL\\s+UPDATES|ONCE|EXPECT|CLUSTER\\s+BY\\s+AUTO|CLUSTER\\s+BY|PARTITIONED\\s+BY|TBLPROPERTIES|COMMENT|LOCATION|SCHEDULE|WITH\\s+ROW\\s+FILTER|MASK|GENERATED\\s+ALWAYS\\s+AS|STREAM)\\b",
+          "name": "keyword.other.lakeflow.databricks-sql"
+        },
+        {
+          "match": "(?i)\\b(LIVE)(\\.)",
+          "captures": {
+            "1": {
+              "name": "keyword.other.lakeflow.databricks-sql"
+            },
+            "2": {
+              "name": "punctuation.accessor.databricks-sql"
+            }
+          }
+        }
+      ]
+    },
+    "type-complex": {
+      "begin": "(?i)\\b(ARRAY|MAP|STRUCT)\\s*(<)",
+      "end": ">",
+      "beginCaptures": {
+        "1": {
+          "name": "storage.type.databricks-sql"
+        },
+        "2": {
+          "name": "punctuation.definition.typeparameters.begin.databricks-sql"
+        }
+      },
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.typeparameters.end.databricks-sql"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#comments"
+        },
+        {
+          "include": "#quoted-identifier"
+        },
+        {
+          "include": "#type-complex"
+        },
+        {
+          "include": "#types"
+        },
+        {
+          "include": "#numbers"
+        },
+        {
+          "include": "#strings"
+        },
+        {
+          "match": "(?i)\\bCOMMENT\\b",
+          "name": "keyword.other.databricks-sql"
+        },
+        {
+          "match": "[A-Za-z_]\\w*(?=\\s*:)",
+          "name": "variable.other.member.databricks-sql"
+        },
+        {
+          "match": ":",
+          "name": "punctuation.separator.key-value.databricks-sql"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.databricks-sql"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.databricks-sql",
+          "match": "(?i)\\b(?:STRING|BINARY|BOOLEAN|TINYINT|SMALLINT|INT|INTEGER|BIGINT|FLOAT|DOUBLE|REAL|DATE|TIMESTAMP_NTZ|TIMESTAMP_LTZ|TIMESTAMP|VARIANT|VOID|BYTE|SHORT|LONG|OBJECT)\\b(?!\\s*\\()"
+        },
+        {
+          "name": "storage.type.databricks-sql",
+          "match": "(?i)\\b(?:VARCHAR|CHAR|DECIMAL|DEC|NUMERIC)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "name": "constant.numeric.databricks-sql",
+      "match": "(?i)(?<![\\w.])(?:\\d+\\.?\\d*|\\.\\d+)(?:E[+-]?\\d+)?(?:BD|[LSYDF])?(?![\\w])"
+    },
+    "builtin-functions": {
+      "name": "support.function.builtin.databricks-sql",
+      "match": "(?i)\\b(?:read_files|read_kafka|try_cast|cast|to_date|to_timestamp|try_to_timestamp|try_to_date|date_trunc|trunc|sequence|explode|explode_outer|posexplode|inline|array_compact|element_at|map|struct|named_struct|coalesce|nullif|nvl|nvl2|ifnull|iff|if|count|count_if|sum|avg|min|max|max_by|min_by|last|first|any_value|row_number|rank|dense_rank|ntile|lag|lead|regexp_extract|regexp_replace|regexp_like|current_timestamp|current_date|now|ai_query|ai_classify|ai_extract|ai_summarize|from_json|to_json|schema_of_json|get_json_object|json_tuple|sha1|sha2|md5|xxhash64|hash|concat|concat_ws|substring|substr|trim|ltrim|rtrim|upper|lower|length|split|replace|lpad|rpad|round|floor|ceil|abs|year|month|day|dayofmonth|hour|minute|second|date_add|date_sub|datediff|add_months|months_between|last_day|date_format|unix_timestamp|from_unixtime|array|array_contains|array_distinct|size|collect_list|collect_set|transform|filter|exists|aggregate|zip_with|map_keys|map_values|map_from_arrays|create_map|stack|greatest|least|uuid|try_divide|try_add|try_subtract|try_multiply|parse_json|try_parse_json|variant_get|from_csv|to_csv|input_file_name|current_user|is_member|date|timestamp|decimal|string|int|bigint|double|float|boolean|binary|stream|live)\\b(?=\\s*\\()"
+    },
+    "keywords": {
+      "name": "keyword.control.databricks-sql",
+      "match": "(?i)\\b(?:UNBOUNDED\\s+PRECEDING|UNBOUNDED\\s+FOLLOWING|WHEN\\s+NOT\\s+MATCHED|INSERT\\s+OVERWRITE|PARTITIONED\\s+BY|DISTRIBUTE\\s+BY|RANGE\\s+BETWEEN|RESPECT\\s+NULLS|DISTINCT\\s+FROM|RENAME\\s+COLUMN|CHANGE\\s+COLUMN|GROUP\\s+BY\\s+ALL|LATERAL\\s+VIEW|PARTITION\\s+BY|ROWS\\s+BETWEEN|IGNORE\\s+NULLS|WITHIN\\s+GROUP|WHEN\\s+MATCHED|USE\\s+DATABASE|AT\\s+TIME\\s+ZONE|CURRENT\\s+ROW|DELETE\\s+FROM|INSERT\\s+INTO|TABLESAMPLE|NULLS\\s+FIRST|ADD\\s+COLUMNS|DROP\\s+COLUMN|USE\\s+CATALOG|USING\\s+DELTA|PRIMARY\\s+KEY|FOREIGN\\s+KEY|CLUSTER\\s+BY|MERGE\\s+INTO|UPDATE\\s+SET|NULLS\\s+LAST|ADD\\s+COLUMN|UNSET\\s+TAGS|COMMENT\\s+ON|USE\\s+SCHEMA|PRIVILEGES|REFERENCES|RECURSIVE|INTERSECT|LEFT\\s+SEMI|LEFT\\s+ANTI|PRECEDING|FOLLOWING|UNBOUNDED|BY\\s+SOURCE|BY\\s+TARGET|OVERWRITE|TEMPORARY|RENAME\\s+TO|TIMESTAMP|DISTINCT|GROUP\\s+BY|ORDER\\s+BY|DATABASE|FUNCTION|EXTERNAL|TRUNCATE|SET\\s+TAGS|OWNER\\s+TO|DESCRIBE|OPTIMIZE|INTERVAL|QUALIFY|SORT\\s+BY|NATURAL|UNPIVOT|LATERAL|EXPLODE|BETWEEN|MATCHED|PERCENT|REPLACE|CATALOG|EXPLAIN|ANALYZE|REFRESH|DEFAULT|EXTRACT|OPTIONS|MINUTES|SECONDS|SELECT|HAVING|OFFSET|EXCEPT|WINDOW|FILTER|UPDATE|DELETE|INSERT|VALUES|BUCKET|OUT\\s+OF|EXISTS|REGEXP|ESCAPE|CREATE|SCHEMA|VOLUME|REVOKE|VACUUM|UNIQUE|MINUTE|SECOND|MONTHS|WHERE|LIMIT|UNION|MINUS|INNER|RIGHT|OUTER|CROSS|USING|PIVOT|RANGE|ILIKE|RLIKE|TABLE|ALTER|GRANT|DELTA|CHECK|MONTH|YEARS|HOURS|FROM|WITH|JOIN|LEFT|FULL|ANTI|SEMI|OVER|ROWS|INTO|CASE|WHEN|THEN|ELSE|LIKE|DESC|VIEW|TEMP|DROP|SHOW|YEAR|HOUR|DAYS|ALL|SET|END|AND|NOT|ASC|USE|FOR|DAY|DIV|AS|ON|OR|IN|IS|IF|TO)\\b"
+    },
+    "constants": {
+      "name": "constant.language.databricks-sql",
+      "match": "(?i)\\b(?:TRUE|FALSE|NULL)\\b"
+    },
+    "metadata-access": {
+      "patterns": [
+        {
+          "match": "\\b(_metadata|_rescued_data)\\b(?:(\\.)([A-Za-z_]\\w*))?",
+          "captures": {
+            "1": {
+              "name": "variable.language.databricks-sql"
+            },
+            "2": {
+              "name": "punctuation.accessor.databricks-sql"
+            },
+            "3": {
+              "name": "variable.other.property.databricks-sql"
+            }
+          }
+        }
+      ]
+    },
+    "functions": {
+      "name": "entity.name.function.databricks-sql",
+      "match": "\\b[A-Za-z_][\\w$]*(?=\\s*\\()"
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.cast.databricks-sql",
+          "match": "::"
+        },
+        {
+          "name": "keyword.operator.comparison.databricks-sql",
+          "match": "=>"
+        },
+        {
+          "name": "keyword.operator.json-path.databricks-sql",
+          "match": "(?<=[\\w`\\]\\)]):(?=[\\w`\\[])"
+        },
+        {
+          "name": "keyword.operator.concatenation.databricks-sql",
+          "match": "\\|\\|"
+        },
+        {
+          "name": "keyword.operator.comparison.databricks-sql",
+          "match": "<=>|<>|!=|==|<=|>=|<|>|="
+        },
+        {
+          "name": "keyword.operator.arithmetic.databricks-sql",
+          "match": "[-+*/%]"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "match": ";",
+          "name": "punctuation.terminator.statement.databricks-sql"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.databricks-sql"
+        },
+        {
+          "match": "\\.",
+          "name": "punctuation.accessor.databricks-sql"
+        }
+      ]
+    }
+  }
+}

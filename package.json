@@ -1,0 +1,56 @@
+{
+  "name": "databricks-sql",
+  "displayName": "Databricks SQL (Lakeflow)",
+  "description": "Syntax highlighting for Databricks SQL, including the Lakeflow Declarative Pipelines dialect.",
+  "publisher": "ee-practice",
+  "version": "0.1.2",
+  "license": "MIT",
+  "icon": "icons/extension-icon.png",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ee-practice/DatabricksSampleDataProject.git",
+    "directory": "tools/vscode-databricks-sql"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "databricks-sql",
+        "aliases": [
+          "Databricks SQL",
+          "databricks-sql"
+        ],
+        "extensions": [
+          ".dbsql"
+        ],
+        "filenamePatterns": [
+          "**/src_sql/**/*.sql"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/databricks-sql.svg",
+          "dark": "./icons/databricks-sql.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "databricks-sql",
+        "scopeName": "source.databricks-sql",
+        "path": "./syntaxes/databricks-sql.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "devDependencies": {
+    "vscode-oniguruma": "^2.0.1",
+    "vscode-textmate": "^9.1.0"
+  }
+}

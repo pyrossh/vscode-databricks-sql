@@ -1,0 +1,28 @@
+name: vscode-databricks-sql
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Package VSIX
+        run: npx --yes @vscode/vsce package --out vscode-databricks-sql.vsix
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vscode-databricks-sql-vsix
+          path: vscode-databricks-sql.vsix
+          if-no-files-found: error

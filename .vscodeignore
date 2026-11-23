@@ -1,0 +1,5 @@
+node_modules/**
+test/**
+*.vsix
+.gitignore
+icons/extension-icon.svg
