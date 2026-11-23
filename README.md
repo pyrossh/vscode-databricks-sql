@@ -25,7 +25,7 @@ cd vscode-databricks-sql
 npm install
 npm test
 npx --yes @vscode/vsce package
-code --install-extension databricks-sql-0.1.3.vsix --force
+code --install-extension databricks-sql-0.1.4.vsix --force
 ```
 
 Then run "Developer: Reload Window". Check with `code --list-extensions | grep -i databricks-sql`.
