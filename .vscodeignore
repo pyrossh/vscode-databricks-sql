@@ -3,3 +3,4 @@ test/**
 *.vsix
 .gitignore
 icons/extension-icon.svg
+RELEASING.md

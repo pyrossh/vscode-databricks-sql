@@ -2,6 +2,14 @@
 
 TextMate syntax highlighting for Databricks SQL, including the Lakeflow Declarative Pipelines dialect. Declarative only: no activation code.
 
+## Install
+
+From the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=pyrossh.databricks-sql): search for "Databricks SQL (Lakeflow)" in the Extensions view, or run:
+
+```sh
+code --install-extension pyrossh.databricks-sql
+```
+
 ## What it highlights
 
 - Comments (`--`, `/* */`), strings, backtick identifiers, numbers (`10L`, `1.5BD`, exponents).
@@ -25,7 +33,7 @@ cd vscode-databricks-sql
 npm install
 npm test
 npx --yes @vscode/vsce package
-code --install-extension databricks-sql-0.1.5.vsix --force
+code --install-extension "databricks-sql-$(node -p "require('./package.json').version").vsix" --force
 ```
 
 Then run "Developer: Reload Window". Check with `code --list-extensions | grep -i databricks-sql`.
@@ -41,3 +49,5 @@ npm ci && npm test
 ```
 
 Tests use Lakeflow SQL fixtures in `test/fixtures/src_sql`. Set `DBSQL_SQL_DIR=/path/to/src_sql` to test against a live pipeline.
+
+To publish a new version to the Marketplace, see [RELEASING.md](RELEASING.md).
