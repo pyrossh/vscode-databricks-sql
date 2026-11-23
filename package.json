@@ -2,8 +2,8 @@
   "name": "databricks-sql",
   "displayName": "Databricks SQL (Lakeflow)",
   "description": "Syntax highlighting for Databricks SQL, including the Lakeflow Declarative Pipelines dialect.",
-  "publisher": "ee-practice",
-  "version": "0.1.2",
+  "publisher": "peter-ee",
+  "version": "0.1.3",
   "license": "MIT",
   "icon": "icons/extension-icon.png",
   "engines": {
