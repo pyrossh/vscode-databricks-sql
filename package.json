@@ -3,7 +3,7 @@
   "displayName": "Databricks SQL (Lakeflow)",
   "description": "Syntax highlighting for Databricks SQL, including the Lakeflow Declarative Pipelines dialect.",
   "publisher": "pyrossh",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "icon": "icons/extension-icon.png",
   "engines": {
